@@ -1,7 +1,7 @@
 #ARCH=arm
 #CROSS_COMPILE=arm-linux-gnueabihf-
 
-obj-$(CONFIG_MY_CAL) += uio_modules.o
+obj-$(CONFIG_MY_CAL) += zed_uio.o
 #KERNDIR=/mnt/nfs/Zedboard/Linux/linux-digilent
 ##KERNEL_VER=$(shell uname -r)
 #

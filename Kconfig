@@ -1,0 +1,9 @@
+menu "Zynq PL Config"
+	#depends on ARM && AMBA
+	depends on ARM
+
+config MY_CAL
+	tristate "My original device in Zynq PL"
+	help
+	  My modules in Zynq PL
+endmenu

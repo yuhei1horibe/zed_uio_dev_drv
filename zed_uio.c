@@ -86,15 +86,16 @@ static int zed_uio_dev_probe(struct platform_device *pdev)
     }
 
     // UIO info
-    data->info->name           = ZED_UIO_MODULES;
-	data->info->mem[0].memtype = UIO_MEM_PHYS;
+    data->info->name                 = ZED_UIO_MODULES;
+	data->info->mem[0].memtype       = UIO_MEM_PHYS;
+	data->info->mem[0].internal_addr = (phys_addr_t)data->addr_base;
 	//data->info->mem[0].addr    = (phys_addr_t)data->addr_base;
 	//data->info->mem[0].size    = data->size;
 	data->info->mem[0].addr    = res->start;
 	data->info->mem[0].size    = data->size;
 
 	data->info->version   = "0.0.1";
-	data->info->irq       = 0;
+	data->info->irq       = UIO_IRQ_NONE;
 	data->info->irq_flags = 0;
 	data->info->handler   = NULL;
 

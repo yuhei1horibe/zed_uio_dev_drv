@@ -57,13 +57,13 @@ static int zed_uio_dev_probe(struct platform_device *pdev)
     struct zed_uio_dev_data* data   = NULL;
     struct resource*         res    = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 
-    printk("zed_uio_dev: %s\n", __FUNCTION__);
+    dev_info(pdev->dev, "%s\n", __FUNCTION__);
 
     // Allocate memory for device data
     data = devm_kzalloc(&pdev->dev, sizeof(struct zed_uio_dev_data), GFP_KERNEL);
 
     if(data == NULL){
-        printk("%s: Failed to allocate memory for device data.", ZED_UIO_MODULES);
+        dev_err(pdev->dev, "Failed to allocate memory for device data.\n");
         return -ENOMEM;
     }
 
@@ -75,12 +75,12 @@ static int zed_uio_dev_probe(struct platform_device *pdev)
 
     // Get base address
     if(res->start <= 0){
-        printk("%s: Failed to get device address from device tree.", ZED_UIO_MODULES);
+        dev_err(pdev->dev, "Failed to get device address from device tree.\n");
         retval = -EINVAL;
         goto unreg_class;
     }
     else{
-        printk("%s: Register base address is loaded from device tree ... %lx", ZED_UIO_MODULES, (unsigned long)res->start);
+        dev_err(pdev->dev, "Register base address is loaded from device tree ... %lx\n", (unsigned long)res->start);
         data->size      = (unsigned long)(resource_size(res));
         data->addr_base = (void __iomem*)ioremap(res->start, data->size);
     }
@@ -117,7 +117,7 @@ static int zed_uio_dev_probe(struct platform_device *pdev)
 
 // Cleanup for failed operation
 unreg_class:
-    printk("%s: Driver initialization failed\n", __FUNCTION__);
+    dev_err(pdev->dev, "Driver initialization failed\n");
     kfree(data->info);
     kfree(data);
 //out:
@@ -128,7 +128,7 @@ static int zed_uio_dev_remove(struct platform_device* pdev)
 {
     struct zed_uio_dev_data *data = platform_get_drvdata(pdev);
 
-    printk("zed_uio_dev: %s\n", __FUNCTION__);
+    dev_info(pdev->dev, "%s\n", __FUNCTION__);
 
 	uio_unregister_device(data->info);
 	iounmap(data->addr_base);
@@ -148,7 +148,7 @@ static int zed_uio_dev_pm_suspend(struct device *dev)
 {
     //struct zed_uio_dev_data* data = dev_get_drvdata(dev);
 
-    printk("%s: PM SUSPEND\n", __FUNCTION__);
+    dev_info(dev, "PM SUSPEND\n");
 
     // Suspend the device here
 
@@ -160,7 +160,7 @@ static int zed_uio_dev_pm_resume(struct device *dev)
 {
     //struct zed_uio_dev_data* data = dev_get_drvdata(dev);
 
-    printk("%s: PM RESUME\n", __FUNCTION__);
+    dev_info("PM RESUME\n");
 
     // Resume the device here
 
@@ -180,7 +180,7 @@ static const struct dev_pm_ops zed_uio_dev_pm_ops =
 // Device match table
 static const struct of_device_id zed_uio_dev_of_ids[] = 
 {
-    { .compatible = "xlnx,zed_uio_dev" },
+    { .compatible = "xlnx,my-synth-1.0" },
     { }
 };
 MODULE_DEVICE_TABLE(of, zed_uio_dev_of_ids);

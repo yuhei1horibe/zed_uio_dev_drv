@@ -57,13 +57,13 @@ static int zed_uio_dev_probe(struct platform_device *pdev)
     struct zed_uio_dev_data* data   = NULL;
     struct resource*         res    = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 
-    dev_info(pdev->dev, "%s\n", __FUNCTION__);
+    dev_info(&pdev->dev, "%s\n", __FUNCTION__);
 
     // Allocate memory for device data
     data = devm_kzalloc(&pdev->dev, sizeof(struct zed_uio_dev_data), GFP_KERNEL);
 
     if(data == NULL){
-        dev_err(pdev->dev, "Failed to allocate memory for device data.\n");
+        dev_err(&pdev->dev, "Failed to allocate memory for device data.\n");
         return -ENOMEM;
     }
 
@@ -75,12 +75,12 @@ static int zed_uio_dev_probe(struct platform_device *pdev)
 
     // Get base address
     if(res->start <= 0){
-        dev_err(pdev->dev, "Failed to get device address from device tree.\n");
+        dev_err(&pdev->dev, "Failed to get device address from device tree.\n");
         retval = -EINVAL;
         goto unreg_class;
     }
     else{
-        dev_err(pdev->dev, "Register base address is loaded from device tree ... %lx\n", (unsigned long)res->start);
+        dev_info(&pdev->dev, "Register base address is loaded from device tree ... %lx\n", (unsigned long)res->start);
         data->size      = (unsigned long)(resource_size(res));
         data->addr_base = (void __iomem*)ioremap(res->start, data->size);
     }
@@ -88,7 +88,7 @@ static int zed_uio_dev_probe(struct platform_device *pdev)
     // UIO info
     data->info->name                 = ZED_UIO_MODULES;
 	data->info->mem[0].memtype       = UIO_MEM_PHYS;
-	data->info->mem[0].internal_addr = (phys_addr_t)data->addr_base;
+	data->info->mem[0].internal_addr = data->addr_base;
 	//data->info->mem[0].addr    = (phys_addr_t)data->addr_base;
 	//data->info->mem[0].size    = data->size;
 	data->info->mem[0].addr    = res->start;
@@ -117,7 +117,7 @@ static int zed_uio_dev_probe(struct platform_device *pdev)
 
 // Cleanup for failed operation
 unreg_class:
-    dev_err(pdev->dev, "Driver initialization failed\n");
+    dev_err(&pdev->dev, "Driver initialization failed\n");
     kfree(data->info);
     kfree(data);
 //out:
@@ -128,7 +128,7 @@ static int zed_uio_dev_remove(struct platform_device* pdev)
 {
     struct zed_uio_dev_data *data = platform_get_drvdata(pdev);
 
-    dev_info(pdev->dev, "%s\n", __FUNCTION__);
+    dev_info(&pdev->dev, "%s\n", __FUNCTION__);
 
 	uio_unregister_device(data->info);
 	iounmap(data->addr_base);
@@ -160,7 +160,7 @@ static int zed_uio_dev_pm_resume(struct device *dev)
 {
     //struct zed_uio_dev_data* data = dev_get_drvdata(dev);
 
-    dev_info("PM RESUME\n");
+    dev_info(dev, "PM RESUME\n");
 
     // Resume the device here
 
@@ -197,25 +197,7 @@ static struct platform_driver zed_uio_dev_driver = {
     },
 };
 
-// ******************************************
-// init and exit
-// ******************************************
-static int __init zed_uio_dev_init_test(void)
-{
-    printk("%s: init\n", ZED_UIO_MODULES);
- 
-    // Probe this device in init
-    return  platform_driver_probe(&zed_uio_dev_driver, zed_uio_dev_probe);
-}
-module_init(zed_uio_dev_init_test);
-
-static void __exit zed_uio_dev_cleanup(void)
-{
-    printk("%s: exit.\n", ZED_UIO_MODULES);
-    platform_driver_unregister(&zed_uio_dev_driver);
-}
-module_exit(zed_uio_dev_cleanup);
-
+module_platform_driver(zed_uio_dev_driver);
 
 // ******************************************
 // License
